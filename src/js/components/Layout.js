@@ -4,6 +4,9 @@ import Footer from "./Footer";
 import Header from "./Header";
 import list from "./constants.js";
 import {List} from "./List";
+import {CountryList} from "./CountryList";
+
+
 
 
 
@@ -30,12 +33,9 @@ export default class Layout extends React.Component {
     return (
       <div>
         <Header changeTitle = {this.changeTitle.bind(this)} title={this.state.title} />
-       
-        <List />
-        <div>
-         
-        </div>
-        <Footer />
+        <List />  
+        <Header title = "Capitals"/> 
+        <CountryList />
       </div>
     );
   }

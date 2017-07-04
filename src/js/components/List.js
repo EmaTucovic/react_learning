@@ -4,13 +4,23 @@ import {Search} from "./Search";
 import {Button} from "./Button";
 
 
+//url constants for API request
+const DEFAULT_QUERY = 'redux';
+
+const PATH_BASE = 'https://hn.algolia.com/api/v1';
+const PATH_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
+
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
+
+
 //Define higher order function (takes f as par and/or returns funnction as par) 
 function isSearched(searchTerm){
 	console.log("search");
 	//return function that will return boolean based on cond
 	return function(item){
-		console.log(item);
-		console.log(!searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase()));
+		//console.log(item);
+		//console.log(!searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase()));
 		return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
 	}
 }
@@ -22,10 +32,14 @@ export class List extends React.Component {
 
 		this.state = {
 			list: list,
-			searchTerm : ""
+			searchTerm : DEFAULT_QUERY,
+			result: null
 		};
 
 		this.onDismiss = this.onDismiss.bind(this);
+		this.onSearchChange = this.onSearchChange.bind(this);
+		this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
+		this.setSearchTopstories = this.setSearchTopstories.bind(this);
 	}
 
 	//About events:
@@ -34,10 +48,18 @@ export class List extends React.Component {
 
 	onDismiss(id){
 		console.log("on dismiss");
-		//create new array that has no id
-		const updatedList = this.state.list.filter( (item) => item.objectID !== id);
-		this.setState( { list: updatedList } );
-
+		console.log(this.state.result);
+		//Now the response is complex object with one property hits that is of interest!
+		// we never mutate the state like this :
+		//this.state.result.hits = updatedList;
+		//We create new obj like this:
+		const updatedHits = this.state.result.hits.filter( (item) => item.objectID !== id );
+		console.log(updatedHits);
+		this.setState ( {
+			//result : Object.assign( {}, this.state.result, {hits: updatedHits})
+			result : {...this.state.result, hits : updatedHits}
+		});
+		console.log(this.state.result);
 	}
 
 	onSearchChange(event){
@@ -55,8 +77,9 @@ export class List extends React.Component {
 
 	render(){
 		//Destructuring
-		const { list, searchTerm} = this.state; 
-		//Here each item from array, we transform in REACT element
+		const { searchTerm , result} = this.state; 
+		//console.log(result); //Result is an object with property hits that is array of interest
+		
 		//Key should be specified inside the array
 		//Keys must be uniqe among the sibiling
 		//Keys are not passed as props to my component, same value pass in different vay if you need it
@@ -64,40 +87,43 @@ export class List extends React.Component {
 		<div>
 			<Search  value = {searchTerm} onChange = {this.onSearchChange} />
 			<ol>
-			{list.filter(isSearched(searchTerm)).map( (item)=>
-				<li key = {item.objectID}>
-					<span>
-					<a href={item.url}>{item.title}</a>
-				</span>
-				<span>{item.author}</span>
-				<span>{item.num_comments}</span>
-				<span>{item.points}</span>
-				<Button onClick = {()=> this.onDismiss(item.objectID)} > Dismiss </Button>
-				</li>)
+			{result 
+				? result.hits.filter(isSearched(searchTerm)).map( (item)=>
+					<li key = {item.objectID}>
+						<span>
+						<a href={item.url}>{item.title}</a>
+					</span>
+					<span>{item.author}</span>
+					<span>{item.num_comments}</span>
+					<span>{item.points}</span>
+					<Button onClick = {()=> this.onDismiss(item.objectID)} > Dismiss </Button>
+					</li>) 
+				: null
 			}
 			</ol>
 		</div>
 		);
 	}
+
+	componentDidMount(){
+		const {searchTerm} = this.state;
+		this.fetchSearchTopStories(searchTerm);
+	}
+
+	fetchSearchTopStories(searchTerm) {
+		//native React fetch API function
+		// It returns a promise and default is GET request
+		// The response needs to get transformed to json, that's a mandatory step in a native fetch,
+		// and can finally be set in the internal component state.
+		fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+			.then( response => response.json())
+			.then( result => this.setSearchTopstories(result))
+			.catch( e => e);
+	}
+
+	setSearchTopstories(topstories) {
+		this.setState( {result : topstories});
+	}
 }
 
 
-//Just example
-export function ListNumbers (props){
-
-	const numbers = props.numbers;
-	//create an array of react elements
-	const listElements = numbers.map( (number) =>
-		<li key = {number.toString()} > {number} </li>
-		);
-
-	return (
-		<ul> {listElements} </ul>
-		);
-}
-
-
-
-//Now you can say in some other module :
-// const numbers = [1,2,3,4,5];
-//ReactDOM.render(<ListNumbers numbers = {numbers} /> , document.getElementById('root'));
