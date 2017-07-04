@@ -1,4 +1,3 @@
-//React transform array into list
 const list = [
   {
     title: 'React',
