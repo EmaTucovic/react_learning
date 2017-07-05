@@ -40,6 +40,7 @@ export class List extends React.Component {
 		this.onSearchChange = this.onSearchChange.bind(this);
 		this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
 		this.setSearchTopstories = this.setSearchTopstories.bind(this);
+		this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
 	}
 
 	//About events:
@@ -85,10 +86,12 @@ export class List extends React.Component {
 		//Keys are not passed as props to my component, same value pass in different vay if you need it
 		return(
 		<div>
-			<Search  value = {searchTerm} onChange = {this.onSearchChange} />
+			<Search  value = {searchTerm} onChange = {this.onSearchChange}  onSubmit = {this.handleSearchSubmit}>
+				Search
+			</Search>
 			<ol>
 			{result 
-				? result.hits.filter(isSearched(searchTerm)).map( (item)=>
+				? result.hits.map( (item)=>
 					<li key = {item.objectID}>
 						<span>
 						<a href={item.url}>{item.title}</a>
@@ -105,7 +108,7 @@ export class List extends React.Component {
 		);
 	}
 
-	componentDidMount(){
+	componentWillMount(){
 		const {searchTerm} = this.state;
 		this.fetchSearchTopStories(searchTerm);
 	}
@@ -123,6 +126,13 @@ export class List extends React.Component {
 
 	setSearchTopstories(topstories) {
 		this.setState( {result : topstories});
+	}
+
+	handleSearchSubmit(event) {
+		//You must do this because native browser behaviour for submit callback in form is to relload!
+		//If you do not do this the page will always reload and start from the scratch 
+		event.preventDefault(); 
+		this.fetchSearchTopStories(this.state.searchTerm);
 	}
 }
 
