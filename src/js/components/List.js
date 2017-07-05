@@ -6,12 +6,12 @@ import {Button} from "./Button";
 
 //url constants for API request
 const DEFAULT_QUERY = 'redux';
+const DEFAULT_PAGE = 0;
 
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
-
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
+const PARAM_PAGE = 'page='; //use this const to add page parameter to API request
 
 
 //Define higher order function (takes f as par and/or returns funnction as par) 
@@ -79,6 +79,7 @@ export class List extends React.Component {
 	render(){
 		//Destructuring
 		const { searchTerm , result} = this.state; 
+		const page = (result && result.page) || 0;
 		//console.log(result); //Result is an object with property hits that is array of interest
 		
 		//Key should be specified inside the array
@@ -104,35 +105,54 @@ export class List extends React.Component {
 				: null
 			}
 			</ol>
+			<Button onClick = {() => this.fetchSearchTopStories(searchTerm, page +1)} > 
+				More
+			</Button>
 		</div>
 		);
 	}
 
 	componentWillMount(){
 		const {searchTerm} = this.state;
-		this.fetchSearchTopStories(searchTerm);
+		this.fetchSearchTopStories(searchTerm, DEFAULT_PAGE);
 	}
 
-	fetchSearchTopStories(searchTerm) {
+	fetchSearchTopStories(searchTerm, pageNumber) {
 		//native React fetch API function
 		// It returns a promise and default is GET request
 		// The response needs to get transformed to json, that's a mandatory step in a native fetch,
 		// and can finally be set in the internal component state.
-		fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+
+		var url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${pageNumber}`;
+		console.log(url);
+		fetch(url)
 			.then( response => response.json())
 			.then( result => this.setSearchTopstories(result))
 			.catch( e => e);
 	}
 
-	setSearchTopstories(topstories) {
-		this.setState( {result : topstories});
+	setSearchTopstories(result) {
+		const { hits, page } =  result;
+
+		const oldHits = page !== 0
+			? this.state.result.hits
+			: [];
+
+		const updatedHits = [
+			...oldHits,
+			...hits
+		];
+
+		this.setState( {
+			result : {  ...result, hits : hits, page}
+		});
 	}
 
 	handleSearchSubmit(event) {
 		//You must do this because native browser behaviour for submit callback in form is to relload!
 		//If you do not do this the page will always reload and start from the scratch 
 		event.preventDefault(); 
-		this.fetchSearchTopStories(this.state.searchTerm);
+		this.fetchSearchTopStories(this.state.searchTerm, DEFAULT_PAGE);
 	}
 }
 
