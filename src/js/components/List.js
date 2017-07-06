@@ -98,7 +98,7 @@ export class List extends React.Component {
 			</Search>
 			<ol>
 			{list.map( (item)=>
-					<li >
+					<li key = {item.objectID} >
 						<span>
 						<a href={item.url}>{item.title}</a>
 					</span>
@@ -115,7 +115,7 @@ export class List extends React.Component {
 		</div>
 		);
 	}
-	
+
 	//This is called when an instance of component is created = once; not when state is updated and rerendering happend
 	componentDidMount(){
 		const {searchTerm} = this.state;
