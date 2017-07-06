@@ -7,11 +7,13 @@ import {Button} from "./Button";
 //url constants for API request
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_PAGE = 0;
+const DEFAULT_HPP = 5;
 
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page='; //use this const to add page parameter to API request
+const PARAM_HPP = 'hitsPerPage=';
 
 
 //Define higher order function (takes f as par and/or returns funnction as par) 
@@ -83,23 +85,20 @@ export class List extends React.Component {
 		const { searchTerm , searchKey, results} = this.state; 
 		const page = (results && results[searchKey] && results[searchKey].page) || 0;
 		const list = ( results && results[searchKey] && results[searchKey].hits) || [];
-		console.log("list to render");
-		console.log(list);
 		var obj = list.find( (el)=> el.objectID == "11488633");
-		console.log(obj);
 		//console.log(result); //Result is an object with property hits that is array of interest
 		
 		//Key should be specified inside the array
 		//Keys must be uniqe among the sibiling
 		//Keys are not passed as props to my component, same value pass in different vay if you need it
 		return(
-		<div>
+		<div className = {page}>
 			<Search  value = {searchTerm} onChange = {this.onSearchChange}  onSubmit = {this.handleSearchSubmit}>
 				Search
 			</Search>
 			<ol>
 			{list.map( (item)=>
-					<li key = {item.objectID}>
+					<li >
 						<span>
 						<a href={item.url}>{item.title}</a>
 					</span>
@@ -116,20 +115,21 @@ export class List extends React.Component {
 		</div>
 		);
 	}
-
+	
+	//This is called when an instance of component is created = once; not when state is updated and rerendering happend
 	componentDidMount(){
 		const {searchTerm} = this.state;
 		this.setState({searchKey : searchTerm});
 		this.fetchSearchTopStories(searchTerm, DEFAULT_PAGE);
 	}
 
-	fetchSearchTopStories(searchTerm, pageNumber) {
+	fetchSearchTopStories(searchTerm, page) {
 		//native React fetch API function
 		// It returns a promise and default is GET request
 		// The response needs to get transformed to json, that's a mandatory step in a native fetch,
 		// and can finally be set in the internal component state.
-
-		var url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${pageNumber}`;
+		console.log("fetchig");
+		var url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`;
 		console.log(url);
 		fetch(url)
 			.then( response => response.json())
@@ -142,18 +142,13 @@ export class List extends React.Component {
 		const { searchKey, results } = this.state;
 
 		const oldHits = results && results[searchKey]
-			? results[searchKey] = hits
+			? results[searchKey].hits
 			: [];
-
-		console.log("old hits");
-		console.log(oldHits);
 
 		const updatedHits = [
 			...oldHits,
 			...hits
 		];
-		console.log("updated state");
-		console.log(updatedHits);
 
 		this.setState( {
 			results : { 
@@ -162,8 +157,6 @@ export class List extends React.Component {
 				[searchKey] :{ hits : updatedHits, page }
 			}
 		});
-		console.log("res");
-		console.log(this.state.results);
 	}
 
 	handleSearchSubmit(event) {
