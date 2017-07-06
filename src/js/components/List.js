@@ -43,6 +43,7 @@ export class List extends React.Component {
 		this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
 		this.setSearchTopstories = this.setSearchTopstories.bind(this);
 		this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
+		this.needsToSearchTopstories = this.needsToSearchTopstories.bind(this);
 	}
 
 	//About events:
@@ -82,6 +83,10 @@ export class List extends React.Component {
 		const { searchTerm , searchKey, results} = this.state; 
 		const page = (results && results[searchKey] && results[searchKey].page) || 0;
 		const list = ( results && results[searchKey] && results[searchKey].hits) || [];
+		console.log("list to render");
+		console.log(list);
+		var obj = list.find( (el)=> el.objectID == "11488633");
+		console.log(obj);
 		//console.log(result); //Result is an object with property hits that is array of interest
 		
 		//Key should be specified inside the array
@@ -140,10 +145,15 @@ export class List extends React.Component {
 			? results[searchKey] = hits
 			: [];
 
+		console.log("old hits");
+		console.log(oldHits);
+
 		const updatedHits = [
 			...oldHits,
 			...hits
 		];
+		console.log("updated state");
+		console.log(updatedHits);
 
 		this.setState( {
 			results : { 
@@ -152,6 +162,7 @@ export class List extends React.Component {
 				[searchKey] :{ hits : updatedHits, page }
 			}
 		});
+		console.log("res");
 		console.log(this.state.results);
 	}
 
@@ -161,8 +172,15 @@ export class List extends React.Component {
 		//If you do not do this the page will always reload and start from the scratch 
 		event.preventDefault(); 
 		this.setState( { searchKey : searchTerm} );
-		this.fetchSearchTopStories(searchTerm, DEFAULT_PAGE);
+		if(this.needsToSearchTopstories(searchTerm)){
+			this.fetchSearchTopStories(searchTerm, DEFAULT_PAGE);
+		}
 	}
+
+	needsToSearchTopstories(searchTerm) {
+		return !this.state.results[searchTerm]; 
+	}
+	
 }
 
 
