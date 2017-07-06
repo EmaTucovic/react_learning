@@ -1,19 +1,19 @@
 import React from "react";
-import list from "./constants.js";
+import PropTypes from 'prop-types';
 import {Search} from "./Search";
 import {Button} from "./Button";
+import {Table} from "./Table";
+import {
+  DEFAULT_QUERY,
+  DEFAULT_PAGE,
+  DEFAULT_HPP,
 
-
-//url constants for API request
-const DEFAULT_QUERY = 'redux';
-const DEFAULT_PAGE = 0;
-const DEFAULT_HPP = 5;
-
-const PATH_BASE = 'https://hn.algolia.com/api/v1';
-const PATH_SEARCH = '/search';
-const PARAM_SEARCH = 'query=';
-const PARAM_PAGE = 'page='; //use this const to add page parameter to API request
-const PARAM_HPP = 'hitsPerPage=';
+  PATH_BASE,
+  PATH_SEARCH,
+  PARAM_SEARCH,
+  PARAM_PAGE,
+  PARAM_HPP,
+} from "../constants/listConstants.js";
 
 
 //Define higher order function (takes f as par and/or returns funnction as par) 
@@ -85,7 +85,6 @@ export class List extends React.Component {
 		const { searchTerm , searchKey, results} = this.state; 
 		const page = (results && results[searchKey] && results[searchKey].page) || 0;
 		const list = ( results && results[searchKey] && results[searchKey].hits) || [];
-		var obj = list.find( (el)=> el.objectID == "11488633");
 		//console.log(result); //Result is an object with property hits that is array of interest
 		
 		//Key should be specified inside the array
@@ -96,19 +95,7 @@ export class List extends React.Component {
 			<Search  value = {searchTerm} onChange = {this.onSearchChange}  onSubmit = {this.handleSearchSubmit}>
 				Search
 			</Search>
-			<ol>
-			{list.map( (item)=>
-					<li key = {item.objectID} >
-						<span>
-						<a href={item.url}>{item.title}</a>
-					</span>
-					<span>{item.author}</span>
-					<span>{item.num_comments}</span>
-					<span>{item.points}</span>
-					<Button onClick = {()=> this.onDismiss(item.objectID)} > Dismiss </Button>
-					</li>) 
-			}
-			</ol>
+			<Table list = {list} onDismiss = {this.onDismiss}/>
 			<Button onClick = {() => this.fetchSearchTopStories(searchKey, page +1)} > 
 				More
 			</Button>
@@ -173,7 +160,9 @@ export class List extends React.Component {
 	needsToSearchTopstories(searchTerm) {
 		return !this.state.results[searchTerm]; 
 	}
-	
+
+
+
 }
 
 
