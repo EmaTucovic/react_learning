@@ -38,30 +38,52 @@ const Sort = ({sortKey, onSort, activeSortKey, children}) => {
     );
 }
 
-export function Table({list, onDismiss, sortKey, isSortReverse, onSort}) {
+export class Table extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            sortKey : 'NONE',
+            isSortReverse : false
+        }
+
+        this.onSort = this.onSort.bind(this);
+
+    }
+
+    onSort(sortKey) {
+		//if the sort key in the state is same as incoming sortkey (you didnt click twice) and reverse state is not true already
+		const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+		this.setState( {sortKey, isSortReverse});
+	}
+    
+    render(){
+
+    const {list, onDismiss} = this.props;
+    const {sortKey, isSortReverse} = this.state;
+    const sortedList = SORTS[sortKey](list);
+    const reverseSortedList = isSortReverse ? sortedList.reverse() : sortedList;
     
     Table.propTypes = {
         list: PropTypes.array.isRequired,
         onDismiss: PropTypes.func.isRequired,
     };
 
-    const sortedList = SORTS[sortKey](list);
-    const reverseSortedList = isSortReverse ? sortedList.reverse() : sortedList;
-
     return (
         <div className="table">
             <div className ="table-header">
-            <span style={{ width: '40%' }}><Sort sortKey = {"TITLE"} onSort = {onSort} activeSortKey = {sortKey}>
+            <span style={{ width: '40%' }}><Sort sortKey = {"TITLE"} onSort = {this.onSort} activeSortKey = {sortKey}>
                 Title
             </Sort></span>
-             <span style={{ width: '30%' }}><Sort sortKey = {"AUTHOR"} onSort = {onSort} activeSortKey = {sortKey}>
+             <span style={{ width: '30%' }}><Sort sortKey = {"AUTHOR"} onSort = {this.onSort} activeSortKey = {sortKey}>
                 Author
             </Sort></span>
-             <span style={{ width: '10%' }}><Sort sortKey = {"COMMERNTS"} onSort = {onSort} activeSortKey = {sortKey}>
+             <span style={{ width: '10%' }}><Sort sortKey = {"COMMERNTS"} onSort = {this.onSort} activeSortKey = {sortKey}>
                 Comments
             </Sort></span>
             <span style={{ width: '10%' }}>
-            <Sort sortKey={'POINTS'} onSort={onSort} activeSortKey = {sortKey} >
+            <Sort sortKey={'POINTS'} onSort={this.onSort} activeSortKey = {sortKey} >
                 Points
             </Sort></span>
              <span style={{ width: '10%' }}>
@@ -89,6 +111,7 @@ export function Table({list, onDismiss, sortKey, isSortReverse, onSort}) {
             </ol>
         </div>
     );
+    }
     
 }
 

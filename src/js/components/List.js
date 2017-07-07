@@ -28,18 +28,14 @@ function isSearched(searchTerm){
 	}
 }
 
-const SORTS = {
-	NONE : list => list,
-	TITLE : list => sortBy(list, 'title'),
-	AUTHOR : list => sortBy(list, 'author'),
-	COMMERNTS : list => sortBy(list, 'num_coments').reverse(),
-	POINTS : list => sortBy(list, 'points').reverse()
-}
-
 export class List extends React.Component {
 
 	constructor(){
 		super();
+
+		// The process of refactoring substate from one component to another is known as lifting state.
+		// In your case you want to move state that isn't used in the List component closer to the Table component.
+		// The state moves down from parent to child component.
 
 		//In order to have a client cache for each result, you have to store multiple results rather than one result in your internal component state.
 		// The results object will be a map with the search term as key and the result as value.
@@ -47,8 +43,6 @@ export class List extends React.Component {
 			searchTerm : DEFAULT_QUERY,
 			results: null, //[{ hits: [], page : numb}, {...}]
 			searchKey: '', // it reflects "searchTerm",
-			sortKey : 'NONE',
-			'isSortReverse' : false
 		};
 
 		this.onDismiss = this.onDismiss.bind(this);
@@ -57,7 +51,6 @@ export class List extends React.Component {
 		this.setSearchTopstories = this.setSearchTopstories.bind(this);
 		this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
 		this.needsToSearchTopstories = this.needsToSearchTopstories.bind(this);
-		this.onSort = this.onSort.bind(this);
 	}
 
 	//About events:
@@ -110,9 +103,6 @@ export class List extends React.Component {
 			<Table 
 				list = {list}
 				onDismiss = {this.onDismiss}
-				sortKey = {sortKey} 
-				isSortReverse = {isSortReverse} 
-				onSort = {this.onSort}
 			/>
 			<Button onClick = {() => this.fetchSearchTopStories(searchKey, page +1)} > 
 				More
@@ -178,14 +168,6 @@ export class List extends React.Component {
 	needsToSearchTopstories(searchTerm) {
 		return !this.state.results[searchTerm]; 
 	}
-
-	onSort(sortKey) {
-		//if the sort key in the state is same as incoming sortkey (you didnt click twice) and reverse state is not true already
-		const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
-		this.setState( {sortKey, isSortReverse});
-	}
-
-
 
 }
 
