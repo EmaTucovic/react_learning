@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Button} from './Button.js';
 import {sortBy} from 'lodash';
+import classNames from 'classnames';
 
 
 
@@ -9,15 +10,33 @@ const SORTS = {
 	NONE : list => list,
 	TITLE : list => sortBy(list, 'title'),
 	AUTHOR : list => sortBy(list, 'author'),
-	COMMERNTS : list => sortBy(list, 'num_coments').reverse(),
+	COMMERNTS : list => sortBy(list, 'num_comments').reverse(),
 	POINTS : list => sortBy(list, 'points').reverse()
 }
 
 //This component on click sets a sortKey
-const Sort = ({sortKey, onSort, children}) =>
-    <Button onClick = { () => onSort(sortKey) } >
-        {children}
-    </Button>
+const Sort = ({sortKey, onSort, activeSortKey, children}) => {
+
+    //1. way without lib classnames
+    //const sortClass = ['button-inline'];
+    // In Button comp pass property : className = { sortClass.join(' ') }
+     // if( activeSortKey === sortKey) {
+    //     sortClass.push('button-active');
+    // }
+
+
+    const sortClass = classNames(
+        'button-inline',
+        {'button-active' : sortKey === activeSortKey});
+
+    return (
+        <Button
+            className = {sortClass} 
+            onClick = { () => onSort(sortKey) } >
+            {children}
+        </Button>
+    );
+}
 
 export function Table({list, onDismiss, sortKey, isSortReverse, onSort}) {
     
@@ -30,36 +49,41 @@ export function Table({list, onDismiss, sortKey, isSortReverse, onSort}) {
     const reverseSortedList = isSortReverse ? sortedList.reverse() : sortedList;
 
     return (
-        <div>
+        <div className="table">
             <div className ="table-header">
-            <span><Sort sortKey = {"TITLE"} onSort = {onSort}>
+            <span style={{ width: '40%' }}><Sort sortKey = {"TITLE"} onSort = {onSort} activeSortKey = {sortKey}>
                 Title
             </Sort></span>
-             <span><Sort sortKey = {"AUTHOR"} onSort = {onSort}>
+             <span style={{ width: '30%' }}><Sort sortKey = {"AUTHOR"} onSort = {onSort} activeSortKey = {sortKey}>
                 Author
             </Sort></span>
-             <span><Sort sortKey = {"COMMENTS"} onSort = {onSort}>
+             <span style={{ width: '10%' }}><Sort sortKey = {"COMMERNTS"} onSort = {onSort} activeSortKey = {sortKey}>
                 Comments
             </Sort></span>
-            <span>
-            <Sort sortKey={'POINTS'} onSort={onSort} >
+            <span style={{ width: '10%' }}>
+            <Sort sortKey={'POINTS'} onSort={onSort} activeSortKey = {sortKey} >
                 Points
             </Sort></span>
-             <span>
+             <span style={{ width: '10%' }}>
                 Archive
             </span>
             </div>
-            <ol>
+            <ol style={{ paddingLeft: '0' }}>
                 { reverseSortedList.map( (item)=> 
-                        <li key = {item.objectID} >
-                        <span>
+                        <li key = {item.objectID} className="table-row">
+                        <span style={{ width: '40%' }}>
                             <a href={item.url}>{item.title}</a>
                         </span>
-                        <span>{item.author}</span>
-                        <span>{item.num_comments}</span>
-                        <span>{item.points}</span>
+                        <span style={{ width: '30%' }}>{item.author}</span>
+                        <span style={{ width: '10%' }}>{item.num_comments}</span>
+                        <span style={{ width: '10%' }}>{item.points}</span>
 
-                        <Button onClick = {() => onDismiss(item.objectID) }> Dismiss </Button>
+                        <Button 
+                            onClick = {() => onDismiss(item.objectID) }
+                            className="button-inline"
+                            > 
+                            Dismiss 
+                        </Button>
                         </li>) 
                 }
             </ol>
