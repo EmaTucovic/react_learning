@@ -14,6 +14,7 @@ import {
   PARAM_PAGE,
   PARAM_HPP,
 } from "../constants/listConstants.js";
+import {sortBy} from 'lodash';
 
 
 //Define higher order function (takes f as par and/or returns funnction as par) 
@@ -27,6 +28,14 @@ function isSearched(searchTerm){
 	}
 }
 
+const SORTS = {
+	NONE : list => list,
+	TITLE : list => sortBy(list, 'title'),
+	AUTHOR : list => sortBy(list, 'author'),
+	COMMERNTS : list => sortBy(list, 'num_coments').reverse(),
+	POINTS : list => sortBy(list, 'points').reverse()
+}
+
 export class List extends React.Component {
 
 	constructor(){
@@ -37,7 +46,9 @@ export class List extends React.Component {
 		this.state = {
 			searchTerm : DEFAULT_QUERY,
 			results: null, //[{ hits: [], page : numb}, {...}]
-			searchKey: '' // it reflects "searchTerm"
+			searchKey: '', // it reflects "searchTerm",
+			sortKey : 'NONE',
+			'isSortReverse' : false
 		};
 
 		this.onDismiss = this.onDismiss.bind(this);
@@ -46,6 +57,7 @@ export class List extends React.Component {
 		this.setSearchTopstories = this.setSearchTopstories.bind(this);
 		this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
 		this.needsToSearchTopstories = this.needsToSearchTopstories.bind(this);
+		this.onSort = this.onSort.bind(this);
 	}
 
 	//About events:
@@ -82,7 +94,7 @@ export class List extends React.Component {
 
 	render(){
 		//Destructuring
-		const { searchTerm , searchKey, results} = this.state; 
+		const { searchTerm , searchKey, results, sortKey, isSortReverse} = this.state; 
 		const page = (results && results[searchKey] && results[searchKey].page) || 0;
 		const list = ( results && results[searchKey] && results[searchKey].hits) || [];
 		//console.log(result); //Result is an object with property hits that is array of interest
@@ -95,7 +107,13 @@ export class List extends React.Component {
 			<Search  value = {searchTerm} onChange = {this.onSearchChange}  onSubmit = {this.handleSearchSubmit}>
 				Search
 			</Search>
-			<Table list = {list} onDismiss = {this.onDismiss}/>
+			<Table 
+				list = {list}
+				onDismiss = {this.onDismiss}
+				sortKey = {sortKey} 
+				isSortReverse = {isSortReverse} 
+				onSort = {this.onSort}
+			/>
 			<Button onClick = {() => this.fetchSearchTopStories(searchKey, page +1)} > 
 				More
 			</Button>
@@ -159,6 +177,12 @@ export class List extends React.Component {
 
 	needsToSearchTopstories(searchTerm) {
 		return !this.state.results[searchTerm]; 
+	}
+
+	onSort(sortKey) {
+		//if the sort key in the state is same as incoming sortkey (you didnt click twice) and reverse state is not true already
+		const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+		this.setState( {sortKey, isSortReverse});
 	}
 
 
