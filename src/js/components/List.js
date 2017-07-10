@@ -28,6 +28,26 @@ function isSearched(searchTerm){
 	}
 }
 
+//this higher order funct returns funct
+const updatesearchTopStoriesState = (hits, page) => (prevState) => {
+			const { searchKey, results } = prevState;
+
+			const oldHits = results && results[searchKey]
+				? results[searchKey].hits
+				: [];
+
+			const updatedHits = [
+				...oldHits,
+				...hits
+			];
+			return { results : { 
+						...results,//all other results by searchkey
+						//[searchKey] is an ES6 computed property name. It helps you to allocate values dynamically in an object.
+						[searchKey] :{ hits : updatedHits, page }
+					}
+			}
+}
+
 export class List extends React.Component {
 
 	constructor(){
@@ -133,25 +153,13 @@ export class List extends React.Component {
 	}
 
 	setSearchTopstories(result) {
+
 		const { hits, page } =  result;
-		const { searchKey, results } = this.state;
+		//update the state depending on the previous state asynchronously : setState is async f
+		//You should use setstate with cb
+		//const { searchKey, results } = this.state;
 
-		const oldHits = results && results[searchKey]
-			? results[searchKey].hits
-			: [];
-
-		const updatedHits = [
-			...oldHits,
-			...hits
-		];
-
-		this.setState( {
-			results : { 
-				...results,//all other results by searchkey
-				//[searchKey] is an ES6 computed property name. It helps you to allocate values dynamically in an object.
-				[searchKey] :{ hits : updatedHits, page }
-			}
-		});
+		this.setState( updatesearchTopStoriesState (hits, page) );
 	}
 
 	handleSearchSubmit(event) {

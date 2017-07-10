@@ -1,9 +1,11 @@
 import React from "react";
 
-import Footer from "./Footer";
+//import Footer from "./Footer";
 import Header from "./Header";
 import {List} from "./List";
 import {CountryList} from "./CountryList";
+
+import Calculator from "./temperature/TemperatureCalculator";
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -25,6 +27,7 @@ export default class Layout extends React.Component {
         <List />  
         <Header title = "Capitals"/> 
         <CountryList />
+        <Calculator />
       </div>
     );
   }
