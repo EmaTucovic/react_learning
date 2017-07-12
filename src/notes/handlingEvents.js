@@ -1,11 +1,12 @@
 //Meaning of THIS
 
-//1. Bind eventHandlerFunction in constructor or where are you passinj it
+//1. Bind eventHandlerFunction in constructor or where are you passing it
 
             // this.eventHandlerFunction = this.eventHandlerFunction.bind(this)
 
 //2. use experimental PROPERTY INITIALIZER SYNTAX
-// We are defining function in class (property) and with this syntax ensuring "this" is bound withiin eventHandlerFunction
+// We are defining function in class (property) and with this syntax ensuring "this" is bound withiin that func (in ex eventHandlerFunction)
+           
             // class Comp extends React.Component{
             //     eventHandlerFunction = () => { console.log( 'this is', this)}
 
@@ -19,7 +20,7 @@
             // }
 
 
-//3. Use arrow funct in callback and this will have value of that class
+//3. Use arrow funct in callback and 'this' will have value of that class
 
             // class LoggingButton extends React.Component {
             //   handleClick() {
