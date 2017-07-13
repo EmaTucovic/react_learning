@@ -1,10 +1,10 @@
 import React from 'react';
 import TemperatureInput from './TemperatureInput.js';
 
-const scaleNames = {
-    c : "Celsius",
-    f : "Fahrenheit"
-}
+// const scaleNames = {
+//     c : "Celsius",
+//     f : "Fahrenheit"
+// }
 
 export default class Calculator extends React.Component {
 
@@ -63,7 +63,7 @@ export default class Calculator extends React.Component {
     
     render() {
 
-        const {temperatureCel, temperaturefahr, scale} = this.state;
+        const {temperatureCel, temperaturefahr} = this.state;
 
         return (
             <div>  

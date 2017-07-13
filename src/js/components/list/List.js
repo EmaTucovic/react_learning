@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes from 'prop-types';
+//import PropTypes from 'prop-types';
 import {Search} from "./Search";
 import {Button} from "./Button";
 import {Table} from "./Table";
@@ -13,22 +13,22 @@ import {
   PARAM_SEARCH,
   PARAM_PAGE,
   PARAM_HPP,
-} from "../constants/listConstants.js";
-import {sortBy} from 'lodash';
+} from "../../constants/listConstants.js";
+//import {sortBy} from 'lodash';
 
 
 //Define higher order function (takes f as par and/or returns funnction as par) 
-function isSearched(searchTerm){
-	console.log("search");
-	//return function that will return boolean based on cond
-	return function(item){
-		//console.log(item);
-		//console.log(!searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase()));
-		return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
-	}
-}
+// function isSearched(searchTerm){
+// 	//return function that will return boolean based on cond
+// 	return function(item){
+// 		//console.log(item);
+// 		//console.log(!searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase()));
+// 		return !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
+// 	}
+// }
 
 //this higher order funct returns funct
+//like utility func: does not have or need this (List)
 const updatesearchTopStoriesState = (hits, page) => (prevState) => {
 			const { searchKey, results } = prevState;
 
@@ -63,6 +63,7 @@ export class List extends React.Component {
 			searchTerm : DEFAULT_QUERY,
 			results: null, //[{ hits: [], page : numb}, {...}]
 			searchKey: '', // it reflects "searchTerm",
+			page : 0
 		};
 
 		this.onDismiss = this.onDismiss.bind(this);
@@ -96,7 +97,7 @@ export class List extends React.Component {
 		this.setState({
 			searchTerm : event.target.value
 		});
-  	}
+	}
 
 	// Form elements such as <input>, <textarea> and <select> hold their own state. 
 	// They modify the value internally once someone changes it from the outside. 
@@ -107,7 +108,7 @@ export class List extends React.Component {
 
 	render(){
 		//Destructuring
-		const { searchTerm , searchKey, results, sortKey, isSortReverse} = this.state; 
+		const { searchTerm , searchKey, results} = this.state; 
 		const page = (results && results[searchKey] && results[searchKey].page) || 0;
 		const list = ( results && results[searchKey] && results[searchKey].hits) || [];
 		//console.log(result); //Result is an object with property hits that is array of interest
@@ -143,9 +144,8 @@ export class List extends React.Component {
 		// It returns a promise and default is GET request
 		// The response needs to get transformed to json, that's a mandatory step in a native fetch,
 		// and can finally be set in the internal component state.
-		console.log("fetchig");
 		var url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`;
-		console.log(url);
+		//console.log("url in fetch func",url);
 		fetch(url)
 			.then( response => response.json())
 			.then( result => this.setSearchTopstories(result))
@@ -159,6 +159,8 @@ export class List extends React.Component {
 		//You should use setstate with cb
 		//const { searchKey, results } = this.state;
 
+		//setState receive function cb as arg
+		//updatesearchTopStoriesState returns function
 		this.setState( updatesearchTopStoriesState (hits, page) );
 	}
 

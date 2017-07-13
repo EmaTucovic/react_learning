@@ -1,11 +1,13 @@
 import React from "react";
 
 //import Footer from "./Footer";
-import Header from "./Header";
-import {List} from "./List";
-import {CountryList} from "./CountryList";
+import Header from "./list/Header";
+// import {List} from "./list/List";
+//import {CountryList} from "./list/CountryList"; // add  <Header title = "Capitals"/> <CountryList/>
 
-import Calculator from "./temperature/TemperatureCalculator";
+//import Calculator from "./temperature/TemperatureCalculator"; //<Calculator />
+
+import List from "./list2/List";
 
 export default class Layout extends React.Component {
   constructor(props) {
@@ -25,9 +27,6 @@ export default class Layout extends React.Component {
       <div>
         <Header changeTitle = {this.changeTitle.bind(this)} title={this.state.title} />
         <List />  
-        <Header title = "Capitals"/> 
-        <CountryList />
-        <Calculator />
       </div>
     );
   }
